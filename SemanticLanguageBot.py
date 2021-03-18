@@ -27,9 +27,10 @@ def send_text(message):
         if bot_command_key == 'add text to the dictionary':
             bot.send_message(message.chat.id, semantic_handler.tag_text(message.text))
         elif bot_command_key == 'build semantic tree':
-            pass
+            # Need semantic tree picture
+            bot.send_photo(message.chat.id, open('squirtle.png', 'rb'))
         elif bot_command_key == 'get semantic analyse of text':
-            pass
+            bot.send_message(message.chat.id, 'Semantic analyse')
 
         bot_command_key = ''
     elif not key:
