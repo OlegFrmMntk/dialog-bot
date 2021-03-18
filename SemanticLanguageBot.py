@@ -1,7 +1,7 @@
 import telebot
 
 # You can set parse_mode by default. HTML or MARKDOWN
-bot = telebot.TeleBot("1734276898:AAFzgB1ShRrZ_jd3AbrKls51QC4O8soK0_Y", parse_mode=None)
+bot = telebot.TeleBot(input('Enter token: '), parse_mode=None)
 
 bot_command_key = ''
 
