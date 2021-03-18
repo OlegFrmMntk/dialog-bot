@@ -5,27 +5,8 @@ from nltk.data import load
 
 from tkinter import *
 
-root = Tk()
-
-txt = StringVar()
-txt.set("There are numerous regions that have appeared in the various media of the Pokemon franchise.")
-
-res = StringVar()
-
 lemmatizer = WordNetLemmatizer()
 
-
-def help_window():
-    children = Toplevel(root)
-    children.title('Help')
-
-    text = Text(children, height=20, width=100)
-    scroll = Scrollbar(children)
-    scroll.pack(side=RIGHT, fill=Y)
-    text.pack(side=LEFT, fill=Y)
-    scroll.config(command=text.yview)
-    text.config(yscrollcommand=scroll.set)
-    text.insert(END, helpmsg)
 
 tag_dict = {
             "JJ": wn.ADJ,
@@ -69,8 +50,8 @@ def pos_tag_sentence(sent):
 tagdict = load('help/tagsets/upenn_tagset.pickle')
 
 
-def tag_text():
-    sentences = nltk.sent_tokenize(txt.get())
+def tag_text(txt):
+    sentences = nltk.sent_tokenize(txt)
     out = str()
     for sent in sentences:
         out += "--- Sentence: {}\n".format(sent)
@@ -81,9 +62,4 @@ def tag_text():
             pt = tsent[i]
             out += "{} -- {}({}). Position: {}\n".format(pt[0], pt[1], tagdict[pt[1]][0], pt[2])
             i += 1
-    res.set(out)
-
-
-helpmsg = str()
-for key in tagdict.keys():
-    helpmsg += "* {} -- {}\nExamples: {}\n".format(key, tagdict[key][0], tagdict[key][1])
+    return out

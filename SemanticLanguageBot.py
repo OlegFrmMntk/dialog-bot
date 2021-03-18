@@ -1,8 +1,9 @@
 import telebot
 
-# You can set parse_mode by default. HTML or MARKDOWN
-bot = telebot.TeleBot(input('Enter token: '), parse_mode=None)
+import semantic_handler
 
+# You can set parse_mode by default. HTML or MARKDOWN
+bot = telebot.TeleBot('1734276898:AAFzgB1ShRrZ_jd3AbrKls51QC4O8soK0_Y', parse_mode=None)
 bot_command_key = ''
 
 
@@ -22,8 +23,15 @@ def send_text(message):
         bot.send_message(message.chat.id, 'Enter a text')
 
     if not key and len(bot_command_key) > 0:
+
+        if bot_command_key == 'add text to the dictionary':
+            bot.send_message(message.chat.id, semantic_handler.tag_text(message.text))
+        elif bot_command_key == 'build semantic tree':
+            pass
+        elif bot_command_key == 'get semantic analyse of text':
+            pass
+
         bot_command_key = ''
-        bot.send_message(message.chat.id, 'Text after command')
     elif not key:
         bot.send_message(message.chat.id, 'Chatting')
 
