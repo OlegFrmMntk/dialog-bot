@@ -28,7 +28,7 @@ def send_text(message):
             bot.send_message(message.chat.id, semantic_handler.tag_text(message.text))
         elif bot_command_key == 'build semantic tree':
             # Need semantic tree picture
-            bot.send_photo(message.chat.id, open('squirtle.png', 'rb'))
+            bot.send_photo(message.chat.id, semantic_handler.build_syntax_tree(message.text))
         elif bot_command_key == 'get semantic analyse of text':
             bot.send_message(message.chat.id, 'Semantic analyse')
 
@@ -38,6 +38,8 @@ def send_text(message):
 
 
 keyboard = telebot.types.ReplyKeyboardMarkup()
+
 keyboard.row('Add text to the dictionary')
 keyboard.row('Build semantic tree')
 keyboard.row('Get semantic analyse of text')
+keyboard.row('Help')

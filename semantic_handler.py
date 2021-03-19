@@ -5,6 +5,8 @@ from nltk.data import load
 
 from tkinter import *
 
+import docx
+
 lemmatizer = WordNetLemmatizer()
 
 
@@ -28,13 +30,36 @@ tag_dict = {
             }
 
 
+grammar = r"""
+        P: {<IN>}
+        V: {<V.*|MD>}
+        N: {<NN.*>}
+        JJP: {<RB|RBR|RBS|JJ|JJR|JJS|CD>}
+        NP: {<N|PP>+<DT|PR.*|JJP|CC>}
+        NP: {<PDT>?<DT|PR.*|JJP|CC><N|PP>+}
+        PP: {<P><N|NP>}
+        VP: {<NP|N|PR.*><V|VP>+}
+        VP: {<V><NP|N>}
+        VP: {<V><JJP>}
+        VP: {<VP><PP>}
+        """
+
+
+def get_text(filename):
+    doc = docx.Document(filename)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return '\n'.join(full_text)
+
+
 def pos_tag_sentence(sent):
-    postgs = nltk.pos_tag(nltk.word_tokenize(sent))
+    pos_tags = nltk.pos_tag(nltk.word_tokenize(sent))
     rtgs = list()
     i = 0
     pos = 1
-    while i < len(postgs):
-        pt = postgs[i]
+    while i < len(pos_tags):
+        pt = pos_tags[i]
         if re.search(r'[A-Za-z]+', pt[0]) is not None:
             lemma = str()
             if pt[1] in tag_dict:
@@ -47,7 +72,7 @@ def pos_tag_sentence(sent):
     return rtgs
 
 
-tagdict = load('help/tagsets/upenn_tagset.pickle')
+tag_dictionary = load('help/tagsets/upenn_tagset.pickle')
 
 
 def tag_text(txt):
@@ -55,11 +80,20 @@ def tag_text(txt):
     out = str()
     for sent in sentences:
         out += "--- Sentence: {}\n".format(sent)
-        tsent = pos_tag_sentence(sent)
+        sentence = pos_tag_sentence(sent)
         i = 0
-        tsent = sorted(tsent, key=lambda s: s[0])
-        while i < len(tsent):
-            pt = tsent[i]
-            out += "{} -- {}({}). Position: {}\n".format(pt[0], pt[1], tagdict[pt[1]][0], pt[2])
+        sentence = sorted(sentence, key=lambda s: s[0])
+        while i < len(sentence):
+            pt = sentence[i]
+            out += "{} -- {}({}). Position: {}\n".format(pt[0], pt[1], tag_dictionary[pt[1]][0], pt[2])
             i += 1
     return out
+
+
+def build_syntax_tree(text):
+    sentences = nltk.sent_tokenize('\n'.join(text))
+    for sentence in sentences:
+        tag_sentence = pos_tag_sentence(sentence)
+        ch = nltk.RegexpParser(grammar)
+        tree = ch.parse(tag_sentence)
+        return tree.draw()
