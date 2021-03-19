@@ -3,9 +3,16 @@ from nltk.corpus import wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.data import load
 
+import docx
+
+import en_core_web_sm
+
+import matplotlib.pyplot as plt
+
+from wordcloud import WordCloud
+
 from tkinter import *
 
-import docx
 
 lemmatizer = WordNetLemmatizer()
 
@@ -45,12 +52,19 @@ grammar = r"""
         """
 
 
-def get_text(filename):
-    doc = docx.Document(filename)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return '\n'.join(full_text)
+def get_words(input_text):
+    dictionary = []
+
+    word = ''
+    for sign in input_text:
+        if 'a' <= sign <= 'z' or 'A' <= sign <= 'Z':
+            word += sign
+        elif len(word) > 0:
+            dictionary.append(word)
+            word = ""
+    if len(word) > 0:
+        dictionary.append(word)
+    return dictionary
 
 
 def pos_tag_sentence(sent):
@@ -75,8 +89,8 @@ def pos_tag_sentence(sent):
 tag_dictionary = load('help/tagsets/upenn_tagset.pickle')
 
 
-def tag_text(txt):
-    sentences = nltk.sent_tokenize(txt)
+def tag_text(input_text):
+    sentences = nltk.sent_tokenize(input_text)
     out = str()
     for sent in sentences:
         out += "--- Sentence: {}\n".format(sent)
@@ -90,10 +104,78 @@ def tag_text(txt):
     return out
 
 
-def build_syntax_tree(text):
-    sentences = nltk.sent_tokenize('\n'.join(text))
+def build_syntax_tree(input_text):
+    sentences = nltk.sent_tokenize(input_text)
     for sentence in sentences:
         tag_sentence = pos_tag_sentence(sentence)
         ch = nltk.RegexpParser(grammar)
+        print(input_text)
+        print(tag_sentence)
         tree = ch.parse(tag_sentence)
-        return tree.draw()
+       # return tree.draw()
+
+
+def analyze(input_text):
+    nlp = en_core_web_sm.load()
+
+    doc = nlp(input_text)
+
+    output_text = f"Number of characters: {len(input_text)}\n"
+    output_text += f"Number of characters without spaces {len(input_text) - input_text.count(' ')}\n"
+
+    words = get_words(input_text)
+    output_text += f"Number of words {len(words)}\n"
+    output_text += f"Number of unique words {len(set(words))}\n\n"
+    output_text += "word    count      %\n"
+
+    for i in set(words):
+        output_text += "{}    {}        {:.3f}\n".format(i, words.count(i), (100 * words.count(i) / len(words)))
+
+    output_text += "Recognized named entities:\n"
+    for ent in doc.ents:
+        output_text += "{} -- {}\n".format(ent.text, ent.label_)
+
+    tokens = nltk.word_tokenize(input_text)
+
+    output_text += "\nSymsets:\n"
+    for token in tokens:
+        if re.search(r"[A-Za-z]+", token) is not None:
+            synsets = wn.synsets(token)
+
+            if len(synsets) > 0:
+                output_text += "\n{}".format(token)
+
+                if len(synsets[0].lemmas()) > 0:
+                    output_text += "\n -- Lemmas: "
+
+                for lemma in synsets[0].lemmas():
+                    output_text += lemma.name() + '; '
+
+                if len(synsets[0].hyponyms()) > 0:
+                    output_text += "\n -- Hyponyms: "
+
+                for i in synsets[0].hyponyms():
+                    output_text += i.lemma_names()[0] + '; '
+
+                if len(synsets[0].hypernyms()) > 0:
+                    output_text += "\n -- Hypernyms: "
+
+                for j in synsets[0].hypernyms():
+                    output_text += j.lemma_names()[0] + '; '
+
+    return output_text
+
+
+def get_text(doc):
+    #doc = docx.Document(filename)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return '\n'.join(full_text)
+
+
+def generate_wordcloud(file):
+    input_txt = get_text(file)
+    wordcloud = WordCloud().generate(input_txt)
+    plt.imshow(wordcloud)
+    plt.show()
