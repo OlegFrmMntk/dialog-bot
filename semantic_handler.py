@@ -1,13 +1,16 @@
 import nltk
 from nltk.corpus import wordnet as wn
+from nltk.draw import TreeView, TreeWidget
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.data import load
 
+from nltk.draw.util import CanvasFrame
+
 import docx
 
-import en_core_web_sm
+import os
 
-import matplotlib.pyplot as plt
+import en_core_web_sm
 
 from wordcloud import WordCloud
 
@@ -16,6 +19,7 @@ from tkinter import *
 
 lemmatizer = WordNetLemmatizer()
 
+path = os.getcwd() + '/temp/'
 
 tag_dict = {
             "JJ": wn.ADJ,
@@ -104,15 +108,23 @@ def tag_text(input_text):
     return out
 
 
-def build_syntax_tree(input_text):
-    sentences = nltk.sent_tokenize(input_text)
-    for sentence in sentences:
-        tag_sentence = pos_tag_sentence(sentence)
+def build_syntax_tree(txt):
+    sentences = nltk.sent_tokenize('\n'.join(txt))
+    for sent in sentences:
+        tsent = pos_tag_sentence(sent)
         ch = nltk.RegexpParser(grammar)
-        print(input_text)
-        print(tag_sentence)
-        tree = ch.parse(tag_sentence)
-       # return tree.draw()
+        tree = ch.parse(tsent)
+
+        cf = CanvasFrame()
+        tc = TreeWidget(cf.canvas(), tree)
+        cf.add_widget(tc, 10, 10)  # (10,10) offsets
+        cf.print_to_file('tree.ps')
+        cf.destroy()
+
+        os.system('convert {0}tree.ps {0}tree.png'.format(path))
+
+        #  tree.draw().to_file(path + 'tree.png')
+        return open(path + 'tree.png', 'rb')
 
 
 def analyze(input_text):
@@ -166,16 +178,20 @@ def analyze(input_text):
     return output_text
 
 
-def get_text(doc):
-    #doc = docx.Document(filename)
+def get_text(filename):
+    doc = docx.Document(filename)
+
     full_text = []
     for para in doc.paragraphs:
         full_text.append(para.text)
+
     return '\n'.join(full_text)
 
 
 def generate_wordcloud(file):
     input_txt = get_text(file)
+
     wordcloud = WordCloud().generate(input_txt)
-    plt.imshow(wordcloud)
-    plt.show()
+    wordcloud.to_file(path + 'cloud.png')
+
+    return open(path + 'cloud.png', 'rb')
