@@ -1,8 +1,6 @@
-import subprocess
-
 import nltk
 
-from nltk.draw import TreeView, TreeWidget
+from nltk.draw import TreeWidget
 from nltk.corpus import wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.data import load
@@ -25,23 +23,23 @@ lemmatizer = WordNetLemmatizer()
 path = os.getcwd() + '/temp/'
 
 tag_dict = {
-            "JJ": wn.ADJ,
-            "JJR": wn.ADJ,
-            "JJS": wn.ADJ,
-            "NN": wn.NOUN,
-            "NNP": wn.NOUN,
-            "NNS": wn.NOUN,
-            "NNPS": wn.NOUN,
-            "VB": wn.VERB,
-            "VBN": wn.VERB,
-            "VBG": wn.VERB,
-            "VBZ": wn.VERB,
-            "VBP": wn.VERB,
-            "VBD": wn.VERB,
-            "RB": wn.ADV,
-            "RBR": wn.ADV,
-            "RBS": wn.ADV,
-            }
+    "JJ": wn.ADJ,
+    "JJR": wn.ADJ,
+    "JJS": wn.ADJ,
+    "NN": wn.NOUN,
+    "NNP": wn.NOUN,
+    "NNS": wn.NOUN,
+    "NNPS": wn.NOUN,
+    "VB": wn.VERB,
+    "VBN": wn.VERB,
+    "VBG": wn.VERB,
+    "VBZ": wn.VERB,
+    "VBP": wn.VERB,
+    "VBD": wn.VERB,
+    "RB": wn.ADV,
+    "RBR": wn.ADV,
+    "RBS": wn.ADV,
+}
 
 
 grammar = r"""
@@ -74,7 +72,7 @@ def get_words(input_text):
     return dictionary
 
 
-def pos_tag_sentence(sent):
+def pos_tag_sentence(sent, key):
     postgs = nltk.pos_tag(nltk.word_tokenize(sent))
     rtgs = list()
     i = 0
@@ -87,26 +85,31 @@ def pos_tag_sentence(sent):
                 lemma = lemmatizer.lemmatize(pt[0], pos=tag_dict.get(pt[1]))
             else:
                 lemma = lemmatizer.lemmatize(pt[0])
-            rtgs.append((lemma.upper(), pt[1]))
+
+            if key == 'tree':
+                rtgs.append((lemma.upper(), pt[1]))
+            else:
+                rtgs.append([lemma.upper(), pt[1], pos])
+
             pos += 1
         i += 1
     return rtgs
 
 
-tag_dictionary = load('help/tagsets/upenn_tagset.pickle')
+tagdict = load('help/tagsets/upenn_tagset.pickle')
 
 
-def tag_text(input_text):
-    sentences = nltk.sent_tokenize(input_text)
+def tag_text(txt):
+    sentences = nltk.sent_tokenize(txt)
     out = str()
     for sent in sentences:
         out += "--- Sentence: {}\n".format(sent)
-        sentence = pos_tag_sentence(sent)
+        tsent = pos_tag_sentence(sent, 'dictionary')
         i = 0
-        sentence = sorted(sentence, key=lambda s: s[0])
-        while i < len(sentence):
-            pt = sentence[i]
-            out += "{} -- {}({}). Position: {}\n".format(pt[0], pt[1], tag_dictionary[pt[1]][0], pt[2])
+        tsent = sorted(tsent, key=lambda s: s[0])
+        while i < len(tsent):
+            pt = tsent[i]
+            out += "{} -- {}({}). Position: {}\n".format(pt[0], pt[1], tagdict[pt[1]][0], pt[2])
             i += 1
     return out
 
@@ -114,7 +117,7 @@ def tag_text(input_text):
 def build_syntax_tree(txt):
     sentences = nltk.sent_tokenize(txt)
     for sent in sentences:
-        tsent = pos_tag_sentence(sent)
+        tsent = pos_tag_sentence(sent, 'tree')
         ch = nltk.RegexpParser(grammar)
         tree = ch.parse(tsent)
 
@@ -125,7 +128,7 @@ def build_syntax_tree(txt):
         tc['node_color'] = '#005990'
         tc['leaf_color'] = '#3F8F57'
         tc['line_color'] = '#175252'
-        cf.add_widget(tc, 10, 10)  # (10,10) offsets
+        cf.add_widget(tc, 10, 10)
         cf.print_to_file(path + 'tree.ps')
         cf.destroy()
 

@@ -79,7 +79,7 @@ def send_text(message):
         if bot_command_key[message.chat.id] == 'add text to the dictionary':
             answer = semantic_handler.tag_text(message.text)
             if len(answer) <= 512:
-                bot.send_message(message.chat.id, semantic_handler.analyze(message.text))
+                bot.send_message(message.chat.id, answer)
             else:
                 with open(path + 'dictionary.txt', 'w') as file:
                     file.write(answer)
@@ -91,7 +91,7 @@ def send_text(message):
         elif bot_command_key[message.chat.id] == 'get semantic analyse of text':
             answer = semantic_handler.analyze(message.text)
             if len(answer) <= 512:
-                bot.send_message(message.chat.id, semantic_handler.analyze(message.text))
+                bot.send_message(message.chat.id, answer)
             else:
                 with open(path + 'syntax_analyse.txt', 'w') as file:
                     file.write(answer)
