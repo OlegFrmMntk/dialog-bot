@@ -1,6 +1,9 @@
+import subprocess
+
 import nltk
-from nltk.corpus import wordnet as wn
+
 from nltk.draw import TreeView, TreeWidget
+from nltk.corpus import wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.data import load
 
@@ -72,19 +75,19 @@ def get_words(input_text):
 
 
 def pos_tag_sentence(sent):
-    pos_tags = nltk.pos_tag(nltk.word_tokenize(sent))
+    postgs = nltk.pos_tag(nltk.word_tokenize(sent))
     rtgs = list()
     i = 0
     pos = 1
-    while i < len(pos_tags):
-        pt = pos_tags[i]
-        if re.search(r'[A-Za-z]+', pt[0]) is not None:
+    while i < len(postgs):
+        pt = postgs[i]
+        if re.search(r"[A-Za-z]+", pt[0]) != None:
             lemma = str()
             if pt[1] in tag_dict:
                 lemma = lemmatizer.lemmatize(pt[0], pos=tag_dict.get(pt[1]))
             else:
                 lemma = lemmatizer.lemmatize(pt[0])
-            rtgs.append([lemma.upper(), pt[1], pos])
+            rtgs.append((lemma.upper(), pt[1]))
             pos += 1
         i += 1
     return rtgs
@@ -109,7 +112,7 @@ def tag_text(input_text):
 
 
 def build_syntax_tree(txt):
-    sentences = nltk.sent_tokenize('\n'.join(txt))
+    sentences = nltk.sent_tokenize(txt)
     for sent in sentences:
         tsent = pos_tag_sentence(sent)
         ch = nltk.RegexpParser(grammar)
@@ -117,13 +120,17 @@ def build_syntax_tree(txt):
 
         cf = CanvasFrame()
         tc = TreeWidget(cf.canvas(), tree)
+        tc['node_font'] = 'arial 14 bold'
+        tc['leaf_font'] = 'arial 14'
+        tc['node_color'] = '#005990'
+        tc['leaf_color'] = '#3F8F57'
+        tc['line_color'] = '#175252'
         cf.add_widget(tc, 10, 10)  # (10,10) offsets
-        cf.print_to_file('tree.ps')
+        cf.print_to_file(path + 'tree.ps')
         cf.destroy()
 
         os.system('convert {0}tree.ps {0}tree.png'.format(path))
 
-        #  tree.draw().to_file(path + 'tree.png')
         return open(path + 'tree.png', 'rb')
 
 

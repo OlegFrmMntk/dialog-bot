@@ -88,9 +88,6 @@ def send_text(message):
                     bot.send_document(message.chat.id, file)
         elif bot_command_key[message.chat.id] == 'build semantic tree':
             bot.send_photo(message.chat.id, semantic_handler.build_syntax_tree(message.text))
-            bot.send_message(message.chat.id, 'TREEEEEEEEEEEEEEEEEEEEEE') #######################################
-            semantic_handler.build_syntax_tree(message.text)
-#           bot.send_photo(message.chat.id, semantic_handler.build_syntax_tree(message.text))
         elif bot_command_key[message.chat.id] == 'get semantic analyse of text':
             answer = semantic_handler.analyze(message.text)
             if len(answer) <= 512:
