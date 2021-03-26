@@ -1,0 +1,18 @@
+[
+	{
+		"question": "Hi. Hello. Hey. Good day. Yo. Good morning. Good evening.",
+		"answer": "Hello, my dear trainer ;).|Hi.|Hello.|Hey.|Yo."
+	},
+	{
+		"question": "How are you? How are you doing? How is everything? How are things going? How are you getting on?",
+		"answer": "I'm bot, I have all the good days!"
+	},
+	{
+		"question": "Bye. Later. Good luck. Bye-bye. Adios. Farewell.",
+		"answer": "Bye.|Later.|Good luck.|Bye-bye.|Adios.|Farewell.|Good luck."
+	},
+	{
+		"question": "Thank you. Thanks. You rock. I owe you one.",
+		"answer": "Are you welcome."
+	}
+]

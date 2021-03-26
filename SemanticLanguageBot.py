@@ -4,6 +4,10 @@ import os
 
 import semantic_handler
 
+import json
+
+import random
+
 help_message = """
 1)Choose a command
 2)Enter the text (Send the document for command "Build word cloud")
@@ -19,14 +23,38 @@ PP -- Prepositional part
 VP -- Verbal part
 """
 
-token = '1734276898:AAFzgB1ShRrZ_jd3AbrKls51QC4O8soK0_Y'
-
 # You can set parse_mode by default. HTML or MARKDOWN
-bot = telebot.TeleBot(token, parse_mode=None)
+bot = telebot.TeleBot(input('Enter bot\' token: '), parse_mode=None)
 
 bot_command_key = dict()
 
 path = os.getcwd() + '/temp/'
+
+bot_choose_pokemon_key = False
+
+
+def get_dialogs():
+    with open(os.getcwd() + '/data/dialog.json', 'r', encoding='utf-8') as file:
+        data = file.read().strip()
+
+    return json.loads(data)
+
+
+def get_oak_answer():
+    with open(os.getcwd() + '/data/oak_answers.txt', encoding='utf-8') as file:
+        data = ''
+        for line in file:
+            if 'squirtle' in data.lower() and random.randint(0, 2) != 0:
+                yield 'Congratulations! Squirtle are your Pokemon now'
+            elif 'charmander' in data.lower() and random.randint(0, 2) != 0:
+                yield 'Congratulations! Charmander are your Pokemon now'
+            elif 'bulbasaur' in data.lower() and random.randint(0, 2) != 0:
+                yield 'Congratulations! Bulbasaur are your Pokemon now'
+
+            data = yield line
+
+
+oak_answers = get_oak_answer()
 
 
 @bot.message_handler(commands=['start'])
@@ -63,6 +91,8 @@ def content_document(message):
 @bot.message_handler(content_types=['text'])
 def send_text(message):
     global bot_command_key
+    global bot_choose_pokemon_key
+
     key = False
 
     if 'dictionary' in message.text.lower():
@@ -109,8 +139,48 @@ def send_text(message):
                     bot.send_document(message.chat.id, file)
 
         bot_command_key[message.chat.id] = ''
+    elif bot_choose_pokemon_key is True:
+        if message.text.lower() == 'no':
+            bot_choose_pokemon_key = False
+            bot.send_message(message.chat.id, 'I\'m sorry, I can\'t help you any more. All the skills and knowledge'
+                                              ' you will get in your travel. Have a nice adventure!')
+        else:
+            answer = oak_answers.send(message.text.lower())
+            if 'squirtle' in answer.lower():
+                bot.send_message(message.chat.id, answer)
+                bot.send_photo(message.chat.id, open(os.getcwd() + '/img/squirtle.png', 'rb'))
+                bot_choose_pokemon_key = False
+            elif 'charmander' in answer.lower():
+                bot.send_message(message.chat.id, answer)
+                bot.send_photo(message.chat.id, open(os.getcwd() + '/img/charmander.png', 'rb'))
+                bot_choose_pokemon_key = False
+            elif 'bulbasaur' in answer.lower():
+                bot.send_message(message.chat.id, answer)
+                bot.send_photo(message.chat.id, open(os.getcwd() + '/img/bulbasaur.png', 'rb'))
+                bot_choose_pokemon_key = False
+            elif 'pikachu' in answer.lower():
+                bot.send_message(message.chat.id, answer)
+                bot.send_photo(message.chat.id, open(os.getcwd() + '/img/pikachu.png', 'rb'))
+                bot_choose_pokemon_key = False
+            else:
+                bot.send_message(message.chat.id, answer)
+
+    elif 'choose' in message.text.lower() and 'pokemon' in message.text.lower():
+        bot_choose_pokemon_key = True
+        bot.send_message(message.chat.id, oak_answers.send(None))
     elif not key:
-        bot.send_message(message.chat.id, 'Chatting')
+        dialogs = get_dialogs()
+        answer_key = False
+        for dialog in dialogs:
+            if message.text.lower() in dialog['question'].lower():
+                answer_key = True
+                answers = list(dialog['answer'].split('|'))
+                bot.send_message(message.chat.id, answers[random.randint(0, len(answers) - 1)])
+                break
+
+        if answer_key is False:
+            bot.send_message(message.chat.id, 'I\'m sorry, I can\'t help you any more. All the skills and knowledge'
+                                              ' you will get in your travel. Have a nice adventure!')
 
 
 keyboard = telebot.types.ReplyKeyboardMarkup()
