@@ -41,7 +41,7 @@ def help_message_handler(message):
 
 @bot.message_handler(content_types=["document"])
 def content_document(message):
-    if bot_command_key[message.chat.id].lower() == 'build word cloud':
+    if bot_command_key[message.chat.id].lower() == 'wordcloud':
         try:
             file_info = bot.get_file(message.document.file_id)
             downloaded_file = bot.download_file(file_info.file_path)
@@ -53,9 +53,9 @@ def content_document(message):
 
             bot.send_photo(message.chat.id, semantic_handler.generate_wordcloud(src))
         except BaseException:
-            bot.send_message(message.chat.id, 'Error document type')
+            bot.send_message(message.chat.id, 'Error document type...')
     else:
-        bot.send_message(message.chat.id, 'Please choose a command')
+        bot.send_message(message.chat.id, 'Please choose a command.')
 
     bot_command_key[message.chat.id] = ''
 
@@ -65,18 +65,27 @@ def send_text(message):
     global bot_command_key
     key = False
 
-    if message.text.lower() in ('add text to the dictionary', 'build semantic tree', 'get semantic analyse of text'):
+    if 'dictionary' in message.text.lower():
         key = True
-        bot_command_key[message.chat.id] = str(message.text.lower())
-        bot.send_message(message.chat.id, 'Enter a text')
-    elif message.text.lower() == 'build word cloud':
+        bot_command_key[message.chat.id] = 'dictionary'
+        bot.send_message(message.chat.id, 'Enter a text and I will make dictionary.')
+    elif 'tree' in message.text.lower():
         key = True
-        bot_command_key[message.chat.id] = str(message.text.lower())
-        bot.send_message(message.chat.id, 'Send the document (.docx)')
+        bot_command_key[message.chat.id] = 'tree'
+        bot.send_message(message.chat.id, 'Enter a text and I will make syntax tree.')
+    elif 'analyse' in message.text.lower():
+        key = True
+        bot_command_key[message.chat.id] = 'analyse'
+        bot.send_message(message.chat.id, 'Enter a text and I will do analyse of text.')
+    elif 'wordcloud' in message.text.lower() or \
+            'word cloud' in message.text.lower():
+        key = True
+        bot_command_key[message.chat.id] = 'wordcloud'
+        bot.send_message(message.chat.id, 'Send the document (.docx) and I will make wordcloud.')
 
     if not key and message.chat.id in bot_command_key and len(bot_command_key[message.chat.id]) > 0:
 
-        if bot_command_key[message.chat.id] == 'add text to the dictionary':
+        if bot_command_key[message.chat.id] == 'dictionary':
             answer = semantic_handler.tag_text(message.text)
             if len(answer) <= 512:
                 bot.send_message(message.chat.id, answer)
@@ -86,9 +95,9 @@ def send_text(message):
 
                 with open(path + 'dictionary.txt', 'rb') as file:
                     bot.send_document(message.chat.id, file)
-        elif bot_command_key[message.chat.id] == 'build semantic tree':
+        elif bot_command_key[message.chat.id] == 'tree':
             bot.send_photo(message.chat.id, semantic_handler.build_syntax_tree(message.text))
-        elif bot_command_key[message.chat.id] == 'get semantic analyse of text':
+        elif bot_command_key[message.chat.id] == 'analyse':
             answer = semantic_handler.analyze(message.text)
             if len(answer) <= 512:
                 bot.send_message(message.chat.id, answer)
