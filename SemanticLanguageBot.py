@@ -44,11 +44,11 @@ def get_oak_answer():
     with open(os.getcwd() + '/data/oak_answers.txt', encoding='utf-8') as file:
         data = ''
         for line in file:
-            if 'squirtle' in data.lower() and random.randint(0, 2) != 0:
+            if 'squirtle' in data.lower() and random.randint(0, 1) != 0:
                 yield 'Congratulations! Squirtle are your Pokemon now'
-            elif 'charmander' in data.lower() and random.randint(0, 2) != 0:
+            elif 'charmander' in data.lower() and random.randint(0, 1) != 0:
                 yield 'Congratulations! Charmander are your Pokemon now'
-            elif 'bulbasaur' in data.lower() and random.randint(0, 2) != 0:
+            elif 'bulbasaur' in data.lower() and random.randint(0, 1) != 0:
                 yield 'Congratulations! Bulbasaur are your Pokemon now'
 
             data = yield line
