@@ -5,7 +5,7 @@
 	},
 	{
 		"question": "How are you? How are you doing? How is everything? How are things going? How are you getting on?",
-		"answer": "I'm bot, I have all the good days!"
+		"answer": "I'm bot, I have all the good days!|Good, and you?|Awesome. What about you?|Pretty good!|Ok, and you?"
 	},
 	{
 		"question": "Bye. Later. Good luck. Bye-bye. Adios. Farewell.",

@@ -23,6 +23,9 @@ PP -- Prepositional part
 VP -- Verbal part
 """
 
+sorry_answer = 'I\'m sorry, I can\'t help you any more. All the skills and knowledge you will get in your travel.' \
+               ' Have a nice adventure!'
+
 # You can set parse_mode by default. HTML or MARKDOWN
 bot = telebot.TeleBot(input('Enter bot\' token: '), parse_mode=None)
 
@@ -142,8 +145,7 @@ def send_text(message):
     elif bot_choose_pokemon_key is True:
         if message.text.lower() == 'no':
             bot_choose_pokemon_key = False
-            bot.send_message(message.chat.id, 'I\'m sorry, I can\'t help you any more. All the skills and knowledge'
-                                              ' you will get in your travel. Have a nice adventure!')
+            bot.send_message(message.chat.id, sorry_answer)
         else:
             answer = oak_answers.send(message.text.lower())
             if 'squirtle' in answer.lower():
@@ -169,6 +171,7 @@ def send_text(message):
         bot_choose_pokemon_key = True
         bot.send_message(message.chat.id, oak_answers.send(None))
     elif not key:
+        bot_choose_pokemon_key = False
         dialogs = get_dialogs()
         answer_key = False
         for dialog in dialogs:
@@ -179,8 +182,7 @@ def send_text(message):
                 break
 
         if answer_key is False:
-            bot.send_message(message.chat.id, 'I\'m sorry, I can\'t help you any more. All the skills and knowledge'
-                                              ' you will get in your travel. Have a nice adventure!')
+            bot.send_message(message.chat.id, sorry_answer)
 
 
 keyboard = telebot.types.ReplyKeyboardMarkup()
